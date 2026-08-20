@@ -62,6 +62,21 @@ This scope was a deliberate choice, not an oversight: the four regulatory soluti
 
 Context on why Compare/Evidence specifically: `Evidence.tsx` contains customer testimonial quotes attributed to role only (no company named), and a performance stat tied to an "MMLU Benchmark Suite" marked "Publication pending" as of 2026-08-20 — i.e., an unpublished claim. `Compare.tsx` makes direct comparative claims against "Hyperscaler In-Tenant" alternatives. `PrivacyPolicy.tsx` is legal-owned by convention.
 
+## Content & Fix Register
+
+Work on this site is tracked in the GitHub Project "Website Ops" (Kyroga-AI org) — every content change, bug fix, or feature gets an issue before work starts (use the "Website Item" template).
+
+Pipeline: Backlog → Ready → In Progress → In Review → Awaiting Sign-off (gated items only) → Done.
+
+When picking up an item:
+1. Move its Status to "In Progress" when starting.
+2. Open a PR referencing it (`Closes #<n>`).
+3. If the PR touches `src/pages/Compare.tsx`, `src/pages/Evidence.tsx`, or `src/pages/PrivacyPolicy.tsx`, apply the `gate:sign-off` label to both issue and PR, and move the item to "Awaiting Sign-off" instead of letting it advance to "In Review." Do not merge until Gus explicitly approves, regardless of automated review outcome.
+4. Otherwise, built-in Project automation advances the item through In Review to Done as the PR opens and merges.
+5. Priority is set by Gus, not by Claude Code — don't reprioritize items on your own.
+
+Labels: `type:content` / `type:fix` / `type:feature` describe the work; `gate:sign-off` marks a gated page per above; `gate:regulatory` flags the four regulatory solution pages (APRA CPS 230, EU AI Act, FCA/MAS, SR 26-2) for visibility only — not currently blocking.
+
 ## Working conventions
 
 - TypeScript strict mode is on — don't loosen `tsconfig.json` to make an error disappear.

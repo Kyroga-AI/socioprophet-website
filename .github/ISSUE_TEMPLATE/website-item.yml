@@ -1,0 +1,40 @@
+name: Website Item
+description: Track a content change, bug fix, or feature for the SocioProphet marketing site
+title: "[Website] "
+labels: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What needs to change, and why.
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: >-
+        Matches the type:* labels on this repo. GitHub issue forms can't
+        auto-apply a label from a dropdown choice, so add the matching
+        type:content / type:fix / type:feature label by hand after creating
+        the issue.
+      options:
+        - Content (type:content)
+        - Fix (type:fix)
+        - Feature (type:feature)
+    validations:
+      required: true
+  - type: input
+    id: pages-affected
+    attributes:
+      label: Pages affected
+      description: >-
+        File path(s) or route(s), e.g. src/pages/Evidence.tsx or
+        /solutions/eu-ai-act
+      placeholder: e.g. src/pages/Evidence.tsx
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Links, screenshots, related issues, anything else useful.
