@@ -50,7 +50,9 @@ Hosting: **Firebase Hosting (Google Cloud)**.
 
 ## Merge gate
 
-No automated test suite or CI pipeline exists (confirmed by inspecting the full repo — no `.github/workflows`, no test files). The standing bar, as of 2026-08-20, is: **every PR requests a review from GitHub's built-in Copilot code review before merge.** This is deliberately lighter than "tests + CI must pass" — that was the original ask, but no test infrastructure exists yet, so Copilot review is the interim real gate. Don't merge without it. If Gus wants an actual test suite later, that's a separate, larger piece of work — don't scaffold one unprompted.
+No automated test suite or CI pipeline exists (confirmed by inspecting the full repo — no `.github/workflows`, no test files). The standing bar, as of 2026-08-20, was originally **GitHub's built-in Copilot code review before merge**, but the `Kyroga-AI` org has no Copilot Pro/Pro+/Business/Enterprise license — confirmed via the repo's Settings → Copilot → Cloud agent page, which shows the same license gate blocks both Copilot cloud agent and Copilot as a requestable PR reviewer. Requesting a Copilot review via `gh pr edit --add-reviewer` or the REST API silently no-ops instead of erroring, so don't trust a clean exit code as proof it worked — check `gh pr view <n> --json reviewRequests` actually lists it.
+
+Until that license exists, the interim gate is: **every PR gets reviewed with Claude Code's `/code-review` skill before merge**, and the findings get addressed or explicitly waved off before merging. This is weaker than Copilot review — it's the same family of model that may have written the change reviewing it, not an independent reviewer, and it doesn't show up as a GitHub-native PR check, so nothing blocks a merge if the step gets skipped; it relies on whoever's merging actually running it. If Gus provisions a Copilot seat later, switch back to requesting Copilot review (verify it actually attached, per above) and revert this section. If Gus wants an actual test suite, that's a separate, larger piece of work — don't scaffold one unprompted.
 
 ## Content sign-off gate
 
