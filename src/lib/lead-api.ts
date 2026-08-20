@@ -9,16 +9,23 @@ export type CreateLeadRequest = {
 };
 
 export async function submitLead(data: CreateLeadRequest): Promise<void> {
-  const endpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim();
-
-  if (!endpoint) {
-    throw new Error("Lead submission is not configured. Set VITE_LEAD_ENDPOINT before deploying.");
-  }
+  const endpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim() || "/api/lead";
 
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      email: data.email,
+      surface: "website_contact",
+      audience: "organization",
+      first_name: data.firstName,
+      last_name: data.lastName,
+      organisation: data.organisation,
+      role: data.role,
+      product_interest: data.productInterest,
+      notes: data.message ?? "",
+      page: "/contact",
+    }),
   });
 
   if (!response.ok) {

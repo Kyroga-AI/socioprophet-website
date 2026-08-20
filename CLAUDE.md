@@ -40,13 +40,15 @@ Defined in `src/App.tsx`. Top-level: `/`, `/platform`, `/products`, `/products/:
 
 ## Environment variables
 
-Single variable: `VITE_LEAD_ENDPOINT` — the full URL the contact form POSTs lead JSON to (see `.env.example` and `src/lib/lead-api.ts`). The actual lead-capture API is a separate service not in this repo. Without this set, the contact form renders but reports submissions aren't configured, rather than failing silently. Never commit a real `.env` — it's gitignored, keep it that way.
+Single variable: `VITE_LEAD_ENDPOINT` — the endpoint the contact form POSTs lead JSON to (see `.env.example` and `src/lib/lead-api.ts`). Defaults to the same-origin path `/api/lead` if unset, which `firebase.json` rewrites to the `leadCapture` Cloud Function living in the separate `socioprophet-marketing` (GitHub: `Kyroga-AI/socioprophet`) repo — that repo owns and deploys the function. Only set `VITE_LEAD_ENDPOINT` to something else if the lead-capture service moves to a different host. Never commit a real `.env` — it's gitignored, keep it that way.
 
 ## Deploy
 
-Hosting: **Firebase Hosting (Google Cloud)**.
+Hosting: **Firebase Hosting (Google Cloud)**, project `socioprophet-web`, site `socioprophet-marketing`. `firebase.json` (public dir `dist`, SPA rewrite to `index.html`, plus a `/api/lead` rewrite to the `leadCapture` function) and `.firebaserc` are committed — `pnpm build && firebase deploy` from a clean clone is the deploy path.
 
-**Open action item, not yet done as of this writing:** there is no `firebase.json` or `.firebaserc` committed to this repo, and no reference to Firebase anywhere in tracked files. The live deploy currently depends entirely on local Firebase CLI state on Gus's machine — it is not reproducible from git alone. Gus has asked for this to be fixed: **the next Claude Code session in this repo should add a `firebase.json` (public dir `dist`, SPA rewrite to `index.html` since this is a client-routed app) and `.firebaserc` pointing at the correct Firebase project, commit them, and confirm `pnpm build && firebase deploy` works from a clean clone.** Until that's done, treat "how do we deploy this" as an open question, not a solved one — don't assume tribal knowledge persists.
+**Shared hosting site, watch for collisions:** the `socioprophet-marketing` hosting site is *also* a deploy target from the `Kyroga-AI/socioprophet` monorepo (its `firebase.json` maps a `marketing` hosting target to the same site, serving a different static directory). Whoever deploys hosting last to that site wins — deploying from this repo without coordinating can silently overwrite what the other repo last put there, and vice versa. Flag to Gus before assuming either deploy is safe to run unattended.
+
+**IAM note (as of 2026-08-20):** deploying the `leadCapture` function (from the other repo) or hosting here both go through the `socioprophet-web` GCP project. Gus's account was missing IAM permissions to list/deploy Cloud Functions on that project (`cloudfunctions.functions.list` denied, `roles/serviceusage.serviceUsageConsumer` missing) — Michael has IAM access there and needs to grant it before either deploy can run from this account.
 
 ## Merge gate
 
