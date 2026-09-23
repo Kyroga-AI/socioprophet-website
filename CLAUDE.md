@@ -44,11 +44,17 @@ Single optional variable: `VITE_LEAD_ENDPOINT` — overrides where the contact f
 
 ## Lead capture (contact form)
 
-The `/contact` form posts to the `submit-lead` Supabase Edge Function, which lives in this repo at `supabase/functions/submit-lead/index.ts`. It validates the payload (hidden `website` field is a spam honeypot), stores the lead in the `leads` table, then emails a notification through Resend with `reply_to` set to the lead's address. A failed email never loses the lead — it's recorded on the row (`email_sent`, `email_error`).
+The `/contact` form posts to the `submit-lead` Supabase Edge Function, which lives in this repo at `supabase/functions/submit-lead/index.ts`. It validates the payload, stores the lead in the `leads` table, then emails a notification through Resend with `reply_to` set to the lead's address. A failed or skipped email never loses the lead — it's recorded on the row (`email_sent`, `email_error`).
+
+Bot protection, all in the function (no third-party service):
+- Honeypot: hidden `sp_field_7` input. If filled, the function returns success but stores nothing. The odd name is deliberate so browser/password-manager autofill never fills it.
+- Timing: the form sends `elapsed_ms` since it was shown; under 3 s gets `400 too-fast` (a person retrying succeeds).
+- Rate limit: max 5 submissions per visitor per hour (`429 rate-limited`), keyed on `ip_hash` — an HMAC of the IP using the project secret key, never the raw IP.
+- Email cap: at most `LEAD_NOTIFY_DAILY_CAP` (default 50) notifications per rolling 24 h; leads beyond that are still stored, marked `email_error = 'daily notification cap reached'`. Protects the Resend quota from a flood.
 
 - Supabase project: **Socioprophet - Marketing** (`hrraiacqhxztndranmtf`, Socioprophet org). View leads in Table Editor → `leads`.
 - Schema: `supabase/migrations/`. RLS is on with no policies, so only the function (secret key) can read/write.
-- Function secrets (Supabase → Edge Functions → Secrets): `RESEND_API_KEY` (required); `LEAD_NOTIFY_TO` (default `marketing@socioprophet.ai`, comma-separated) and `LEAD_NOTIFY_FROM` (default `SocioProphet Website <leads@socioprophet.ai>`, needs `socioprophet.ai` verified in Resend).
+- Function secrets (Supabase → Edge Functions → Secrets): `RESEND_API_KEY` (required); `LEAD_NOTIFY_TO` (default `marketing@socioprophet.ai`, comma-separated) and `LEAD_NOTIFY_FROM` (default `SocioProphet Website <leads@socioprophet.ai>`, needs `socioprophet.ai` verified in Resend), `LEAD_NOTIFY_DAILY_CAP` (default 50).
 - JWT verification is off for this function (`supabase/config.toml`) because the public form calls it anonymously. CORS allows socioprophet.com, www, the Firebase default/preview domains, and localhost.
 - Redeploy after changing the function: `supabase functions deploy submit-lead --project-ref hrraiacqhxztndranmtf`, or paste the file into the dashboard editor.
 

@@ -13,6 +13,10 @@ const PRODUCT_INTERESTS = new Set(["noetica", "prophet-platform", "scope-d", "ge
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const REQUIRED = ["first_name", "last_name", "email", "organisation", "role", "product_interest"] as const;
 
+const MIN_FILL_MS = 3_000;
+const MAX_PER_VISITOR_PER_HOUR = 5;
+const HOUR_MS = 60 * 60 * 1000;
+
 type Lead = {
   first_name: string;
   last_name: string;
@@ -24,6 +28,7 @@ type Lead = {
   page: string | null;
   referrer: string | null;
   user_agent: string | null;
+  ip_hash: string | null;
 };
 
 function corsHeaders(origin: string): Record<string, string> {
@@ -45,6 +50,20 @@ function serverKey(): string {
     if (key) return key;
   }
   return Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+}
+
+async function hashIp(ip: string, key: string): Promise<string> {
+  const enc = new TextEncoder();
+  const cryptoKey = await crypto.subtle.importKey("raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, [
+    "sign",
+  ]);
+  const sig = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(ip));
+  return Array.from(new Uint8Array(sig), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function dailyNotifyCap(): number {
+  const cap = Number(Deno.env.get("LEAD_NOTIFY_DAILY_CAP"));
+  return Number.isFinite(cap) && cap > 0 ? cap : 50;
 }
 
 function text(value: unknown, max: number): string {
@@ -118,7 +137,11 @@ Deno.serve(async (req) => {
   }
 
   // Honeypot: real visitors never see or fill this field.
-  if (text(body.website, 200)) return json(200, { ok: true });
+  if (text(body.sp_field_7, 200)) return json(200, { ok: true });
+
+  // Bots submit instantly; a person retrying after a few seconds gets through.
+  const elapsed = typeof body.elapsed_ms === "number" ? body.elapsed_ms : -1;
+  if (elapsed < MIN_FILL_MS) return json(400, { ok: false, error: "too-fast" });
 
   const lead: Lead = {
     first_name: text(body.first_name, 100),
@@ -131,6 +154,7 @@ Deno.serve(async (req) => {
     page: text(body.page, 256) || null,
     referrer: text(req.headers.get("referer"), 2048) || null,
     user_agent: text(req.headers.get("user-agent"), 512) || null,
+    ip_hash: null,
   };
 
   const missing = REQUIRED.filter((key) => !lead[key]);
@@ -140,9 +164,22 @@ Deno.serve(async (req) => {
     return json(400, { ok: false, error: "invalid-product-interest" });
   }
 
-  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, serverKey(), {
+  const key = serverKey();
+  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, key, {
     auth: { persistSession: false },
   });
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim();
+  if (ip) {
+    lead.ip_hash = await hashIp(ip, key);
+    const { count, error: countError } = await supabase
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .eq("ip_hash", lead.ip_hash)
+      .gte("created_at", new Date(Date.now() - HOUR_MS).toISOString());
+    if (countError) console.error("rate limit check failed", countError);
+    else if ((count ?? 0) >= MAX_PER_VISITOR_PER_HOUR) return json(429, { ok: false, error: "rate-limited" });
+  }
 
   const { data, error } = await supabase.from("leads").insert(lead).select("id").single();
   if (error) {
@@ -150,8 +187,15 @@ Deno.serve(async (req) => {
     return json(500, { ok: false, error: "storage-failed" });
   }
 
-  // The lead is already stored, so a failed email is recorded on the row rather than failing the request.
-  const email = await sendNotification(lead);
+  // The lead is already stored, so a failed or skipped email is recorded on the row rather than failing the request.
+  const { count: sentToday } = await supabase
+    .from("leads")
+    .select("id", { count: "exact", head: true })
+    .eq("email_sent", true)
+    .gte("created_at", new Date(Date.now() - 24 * HOUR_MS).toISOString());
+  const email = (sentToday ?? 0) >= dailyNotifyCap()
+    ? { ok: false, error: "daily notification cap reached" }
+    : await sendNotification(lead);
   if (!email.ok) console.error("lead notification failed", email.error);
   await supabase.from("leads").update({ email_sent: email.ok, email_error: email.error ?? null }).eq("id", data.id);
 

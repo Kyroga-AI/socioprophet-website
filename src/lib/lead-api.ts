@@ -6,12 +6,12 @@ export type CreateLeadRequest = {
   role: string;
   productInterest: "noetica" | "prophet-platform" | "scope-d" | "general";
   message?: string;
-  website?: string;
+  sp_field_7?: string;
 };
 
 const DEFAULT_LEAD_ENDPOINT = "https://hrraiacqhxztndranmtf.supabase.co/functions/v1/submit-lead";
 
-export async function submitLead(data: CreateLeadRequest): Promise<void> {
+export async function submitLead(data: CreateLeadRequest, elapsedMs: number): Promise<void> {
   const endpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim() || DEFAULT_LEAD_ENDPOINT;
 
   const response = await fetch(endpoint, {
@@ -26,7 +26,8 @@ export async function submitLead(data: CreateLeadRequest): Promise<void> {
       product_interest: data.productInterest,
       message: data.message ?? "",
       page: "/contact",
-      website: data.website ?? "",
+      sp_field_7: data.sp_field_7 ?? "",
+      elapsed_ms: elapsedMs,
     }),
   });
 
