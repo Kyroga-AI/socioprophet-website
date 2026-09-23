@@ -17,7 +17,7 @@ export function PrivacyPolicy() {
         <div className="container mx-auto max-w-4xl px-4 md:px-8">
           <div className="prose prose-invert prose-headings:text-white prose-headings:font-bold prose-p:text-muted-foreground prose-p:leading-relaxed prose-li:text-muted-foreground prose-li:leading-relaxed prose-strong:text-white max-w-none">
             <p className="font-mono text-xs uppercase tracking-wider text-primary !mb-10">
-              Last updated: 19 August 2026
+              Last updated: 24 September 2026
             </p>
 
             <h2>What this policy covers</h2>
@@ -34,6 +34,13 @@ export function PrivacyPolicy() {
               organisation, role or title, area of interest, and any additional context you include
               in your message. We may also keep information from subsequent correspondence so that
               we can respond consistently.
+            </p>
+            <p>
+              When you submit the form, we also automatically record the page it was sent from, the
+              referring page, your browser&apos;s user-agent string, and a one-way coded version of
+              your IP address (not the address itself). We use these to see where an enquiry came
+              from and to protect the form from automated spam and abuse, such as limiting repeated
+              submissions.
             </p>
             <p>
               Please do not include passwords, confidential customer information, production
