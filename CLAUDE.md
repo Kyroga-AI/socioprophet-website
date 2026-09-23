@@ -10,7 +10,7 @@ A separate "Sovereign Estate" doctrine exists elsewhere in the org mandating Git
 
 ## What this repo is
 
-The standalone marketing website for SocioProphet — a company selling AI governance/evidence infrastructure into regulated enterprises (banking, insurance, healthcare, asset management, government). React + Vite SPA, frontend-only. It intentionally excludes: Replit-specific config, the Replit database, the lead-capture API server, the slide deck, and the design mockup sandbox — those live elsewhere.
+The standalone marketing website for SocioProphet — a company selling AI governance/evidence infrastructure into regulated enterprises (banking, insurance, healthcare, asset management, government). React + Vite SPA, plus one Supabase Edge Function for the contact form (see Lead capture below). It intentionally excludes: Replit-specific config, the Replit database, the slide deck, and the design mockup sandbox — those live elsewhere.
 
 Products referenced in content: **Noetica**, **Hellagraph**, **Prophet Platform** (tiers: Team / Division / Enterprise), **SCOPE-D**.
 
@@ -40,15 +40,27 @@ Defined in `src/App.tsx`. Top-level: `/`, `/platform`, `/products`, `/products/:
 
 ## Environment variables
 
-Single variable: `VITE_LEAD_ENDPOINT` — the endpoint the contact form POSTs lead JSON to (see `.env.example` and `src/lib/lead-api.ts`). Defaults to the same-origin path `/api/lead` if unset, which `firebase.json` rewrites to the `leadCapture` Cloud Function living in the separate `socioprophet-marketing` (GitHub: `Kyroga-AI/socioprophet`) repo — that repo owns and deploys the function. Only set `VITE_LEAD_ENDPOINT` to something else if the lead-capture service moves to a different host. Never commit a real `.env` — it's gitignored, keep it that way.
+Single optional variable: `VITE_LEAD_ENDPOINT` — overrides where the contact form POSTs lead JSON (see `.env.example` and `src/lib/lead-api.ts`). Unset, it defaults to the `submit-lead` Supabase Edge Function (below). Never commit a real `.env` — it's gitignored, keep it that way.
+
+## Lead capture (contact form)
+
+The `/contact` form posts to the `submit-lead` Supabase Edge Function, which lives in this repo at `supabase/functions/submit-lead/index.ts`. It validates the payload (hidden `website` field is a spam honeypot), stores the lead in the `leads` table, then emails a notification through Resend with `reply_to` set to the lead's address. A failed email never loses the lead — it's recorded on the row (`email_sent`, `email_error`).
+
+- Supabase project: **Socioprophet - Marketing** (`hrraiacqhxztndranmtf`, Socioprophet org). View leads in Table Editor → `leads`.
+- Schema: `supabase/migrations/`. RLS is on with no policies, so only the function (secret key) can read/write.
+- Function secrets (Supabase → Edge Functions → Secrets): `RESEND_API_KEY` (required); `LEAD_NOTIFY_TO` (default `marketing@socioprophet.ai`, comma-separated) and `LEAD_NOTIFY_FROM` (default `SocioProphet Website <leads@socioprophet.ai>`, needs `socioprophet.ai` verified in Resend).
+- JWT verification is off for this function (`supabase/config.toml`) because the public form calls it anonymously. CORS allows socioprophet.com, www, the Firebase default/preview domains, and localhost.
+- Redeploy after changing the function: `supabase functions deploy submit-lead --project-ref hrraiacqhxztndranmtf`, or paste the file into the dashboard editor.
+
+This replaced the earlier plan to route the form to the `leadCapture` Cloud Function in `Kyroga-AI/socioprophet`, which was blocked on GCP IAM access.
 
 ## Deploy
 
-Hosting: **Firebase Hosting (Google Cloud)**, project `socioprophet-web`, site `socioprophet-marketing`. `firebase.json` (public dir `dist`, SPA rewrite to `index.html`, plus a `/api/lead` rewrite to the `leadCapture` function) and `.firebaserc` are committed — `pnpm build && firebase deploy` from a clean clone is the deploy path.
+Hosting: **Firebase Hosting (Google Cloud)**, project `socioprophet-web`, site `socioprophet-marketing` (custom domains `socioprophet.com` and `www.socioprophet.com` are bound to this site). `firebase.json` (public dir `dist`, SPA rewrite to `index.html`) and `.firebaserc` are committed — `pnpm build && firebase deploy --only hosting` from a clean clone is the deploy path.
 
 **Shared hosting site, watch for collisions:** the `socioprophet-marketing` hosting site is *also* a deploy target from the `Kyroga-AI/socioprophet` monorepo (its `firebase.json` maps a `marketing` hosting target to the same site, serving a different static directory). Whoever deploys hosting last to that site wins — deploying from this repo without coordinating can silently overwrite what the other repo last put there, and vice versa. Flag to Gus before assuming either deploy is safe to run unattended.
 
-**IAM note (as of 2026-08-20):** deploying the `leadCapture` function (from the other repo) or hosting here both go through the `socioprophet-web` GCP project. Gus's account was missing IAM permissions to list/deploy Cloud Functions on that project (`cloudfunctions.functions.list` denied, `roles/serviceusage.serviceUsageConsumer` missing) — Michael has IAM access there and needs to grant it before either deploy can run from this account.
+**IAM note:** Gus's account can deploy Firebase Hosting on `socioprophet-web` but not Cloud Functions. Nothing in this repo needs Cloud Functions any more — lead capture runs on Supabase.
 
 ## Merge gate
 

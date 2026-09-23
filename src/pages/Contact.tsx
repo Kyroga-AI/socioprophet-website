@@ -33,7 +33,7 @@ export function Contact() {
       setMutationError(
         error instanceof Error
           ? error.message
-          : "{mutationError}",
+          : "Lead submission failed.",
       );
     } finally {
       setIsPending(false);
@@ -117,7 +117,15 @@ export function Contact() {
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 relative" noValidate>
+                <input
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute -left-[9999px] h-0 w-0 opacity-0"
+                  {...register("website")}
+                />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass} htmlFor="firstName">

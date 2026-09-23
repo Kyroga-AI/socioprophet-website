@@ -6,25 +6,27 @@ export type CreateLeadRequest = {
   role: string;
   productInterest: "noetica" | "prophet-platform" | "scope-d" | "general";
   message?: string;
+  website?: string;
 };
 
+const DEFAULT_LEAD_ENDPOINT = "https://hrraiacqhxztndranmtf.supabase.co/functions/v1/submit-lead";
+
 export async function submitLead(data: CreateLeadRequest): Promise<void> {
-  const endpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim() || "/api/lead";
+  const endpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim() || DEFAULT_LEAD_ENDPOINT;
 
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      email: data.email,
-      surface: "website_contact",
-      audience: "organization",
       first_name: data.firstName,
       last_name: data.lastName,
+      email: data.email,
       organisation: data.organisation,
       role: data.role,
       product_interest: data.productInterest,
-      notes: data.message ?? "",
+      message: data.message ?? "",
       page: "/contact",
+      website: data.website ?? "",
     }),
   });
 
