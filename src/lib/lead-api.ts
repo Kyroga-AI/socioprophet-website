@@ -6,19 +6,29 @@ export type CreateLeadRequest = {
   role: string;
   productInterest: "noetica" | "prophet-platform" | "scope-d" | "general";
   message?: string;
+  sp_field_7?: string;
 };
 
-export async function submitLead(data: CreateLeadRequest): Promise<void> {
-  const endpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim();
+const DEFAULT_LEAD_ENDPOINT = "https://hrraiacqhxztndranmtf.supabase.co/functions/v1/submit-lead";
 
-  if (!endpoint) {
-    throw new Error("Lead submission is not configured. Set VITE_LEAD_ENDPOINT before deploying.");
-  }
+export async function submitLead(data: CreateLeadRequest, elapsedMs: number): Promise<void> {
+  const endpoint = import.meta.env.VITE_LEAD_ENDPOINT?.trim() || DEFAULT_LEAD_ENDPOINT;
 
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      organisation: data.organisation,
+      role: data.role,
+      product_interest: data.productInterest,
+      message: data.message ?? "",
+      page: "/contact",
+      sp_field_7: data.sp_field_7 ?? "",
+      elapsed_ms: elapsedMs,
+    }),
   });
 
   if (!response.ok) {

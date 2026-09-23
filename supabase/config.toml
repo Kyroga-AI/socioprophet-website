@@ -1,0 +1,5 @@
+project_id = "socioprophet-website"
+
+# Called anonymously from the public contact form, so no Supabase JWT is sent.
+[functions.submit-lead]
+verify_jwt = false

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ export function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [mutationError, setMutationError] = useState<string | null>(null);
+  const formShownAt = useRef(Date.now());
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateLeadRequest>();
 
@@ -26,14 +27,14 @@ export function Contact() {
     setIsPending(true);
 
     try {
-      await submitLead(data);
+      await submitLead(data, Date.now() - formShownAt.current);
       setSubmitted(true);
       reset();
     } catch (error) {
       setMutationError(
         error instanceof Error
           ? error.message
-          : "{mutationError}",
+          : "Lead submission failed.",
       );
     } finally {
       setIsPending(false);
@@ -111,13 +112,25 @@ export function Contact() {
                 <Button
                   variant="outline"
                   className="rounded-none border-border"
-                  onClick={() => setSubmitted(false)}
+                  onClick={() => {
+                    formShownAt.current = Date.now();
+                    setSubmitted(false);
+                  }}
                 >
                   Send Another Request
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 relative" noValidate>
+                {/* Spam honeypot: hidden from people, only bots fill it in. */}
+                <input
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute -left-[9999px] h-0 w-0 opacity-0"
+                  {...register("sp_field_7")}
+                />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass} htmlFor="firstName">
