@@ -64,7 +64,7 @@ This replaced the earlier plan to route the form to the `leadCapture` Cloud Func
 
 Hosting: **Firebase Hosting (Google Cloud)**, project `socioprophet-web`, site `socioprophet-marketing` (custom domains `socioprophet.com` and `www.socioprophet.com` are bound to this site). `firebase.json` (public dir `dist`, SPA rewrite to `index.html`) and `.firebaserc` are committed — `pnpm build && firebase deploy --only hosting` from a clean clone is the deploy path.
 
-**Shared hosting site, watch for collisions:** the `socioprophet-marketing` hosting site is *also* a deploy target from the `Kyroga-AI/socioprophet` monorepo (its `firebase.json` maps a `marketing` hosting target to the same site, serving a different static directory). Whoever deploys hosting last to that site wins — deploying from this repo without coordinating can silently overwrite what the other repo last put there, and vice versa. Flag to Gus before assuming either deploy is safe to run unattended.
+**Sole owner of the hosting site:** this repo is the only deploy source for the `socioprophet-marketing` site. The `Kyroga-AI/socioprophet` monorepo used to deploy its `marketing/` directory to the same site, and whichever repo deployed last silently overwrote the other. That hosting target was removed in Kyroga-AI/socioprophet#2 (merged 2026-09-24) and `marketing/` is archived there. If a hosting target pointing at `socioprophet-marketing` ever reappears in that repo's `firebase.json`/`.firebaserc`, flag it to Gus before deploying from either repo.
 
 **IAM note:** Gus's account can deploy Firebase Hosting on `socioprophet-web` but not Cloud Functions. Nothing in this repo needs Cloud Functions any more — lead capture runs on Supabase.
 
