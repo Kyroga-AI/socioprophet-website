@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "wouter";
-import { ArrowRight, History, Laptop, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeCheck, Brain, Lock, Sparkles, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,19 +18,24 @@ const errorClass = "text-xs text-red-400 mt-1";
 
 const POINTS = [
   {
-    icon: Laptop,
-    title: "Runs on your own device",
-    body: "Noetica works on your computer, so what your business knows stays with you.",
+    icon: Wallet,
+    title: "Free to run",
+    body: "It runs open AI models on your own computer, so there are no monthly AI bills or per-question charges.",
   },
   {
-    icon: ShieldCheck,
-    title: "Nothing you type trains anyone else's model",
-    body: "Your questions, notes and documents are never used to improve someone else's AI.",
+    icon: Lock,
+    title: "Your IP stays yours",
+    body: "Your work stays on your machine, and nothing you type trains anyone else's model.",
   },
   {
-    icon: History,
-    title: "Bring your ChatGPT or Claude history",
-    body: "Move your existing conversations and prompts across instead of starting from scratch.",
+    icon: Brain,
+    title: "A brain that compounds",
+    body: "Every chat, note and document adds to a knowledge graph that gets more useful the longer you use it. Start by bringing your ChatGPT or Claude history across.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Governed from day one",
+    body: "Every answer shows its sources and flags what they don't support, so you know what you can rely on.",
   },
 ];
 
@@ -73,7 +78,7 @@ export function NoeticaBeta() {
 
   useEffect(() => {
     const previous = document.title;
-    document.title = "Noetica early access | SocioProphet";
+    document.title = "Noetica free edition waitlist | SocioProphet";
     return () => {
       document.title = previous;
     };
@@ -101,15 +106,16 @@ export function NoeticaBeta() {
         <div className="container mx-auto px-4 md:px-8 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono font-medium uppercase tracking-wider mb-6">
             <Sparkles className="w-4 h-4" />
-            <span>Noetica early access</span>
+            <span>Free self-managed edition · Coming soon</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-5 leading-[1.1]">
-            AI where the knowledge stays yours.
+            Stop renting AI. Start building a brain you own.
           </h1>
           <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-            Noetica today is built for larger organisations. We&apos;re building a version for
-            businesses your size. Tell us a little about yours and we&apos;ll let you know when
-            it&apos;s ready.
+            Noetica runs today as managed deployments for organisations. Soon we&apos;re releasing a
+            free, self-managed edition you can use every day on your own computer: no AI bills, your
+            IP stays on your machine, and every conversation starts building a governed, compounding
+            knowledge brain for you or your business. Join the waitlist to get it first.
           </p>
 
           <div className="bg-card border border-border p-6 md:p-8 relative">
@@ -118,8 +124,7 @@ export function NoeticaBeta() {
               <div role="status" className="animate-in fade-in duration-500">
                 <h2 className="text-2xl font-bold text-white mb-3">You&apos;re on the list.</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  We&apos;ll email you when there&apos;s a version you can try. We don&apos;t have a
-                  date yet.
+                  We&apos;ll email you as soon as the free self-managed edition is ready to download.
                 </p>
               </div>
             ) : (
@@ -271,7 +276,7 @@ export function NoeticaBeta() {
                 </Button>
 
                 <p className="text-xs text-muted-foreground">
-                  We&apos;ll only email you about Noetica early access. Unsubscribe any time. See our{" "}
+                  We&apos;ll only email you about the free Noetica edition. Unsubscribe any time. See our{" "}
                   <Link href="/privacy" className="text-primary underline underline-offset-2 hover:text-white">
                     privacy policy
                   </Link>
@@ -317,7 +322,7 @@ export function NoeticaBeta() {
 
       <section className="py-16 md:py-20">
         <div className="container mx-auto px-4 md:px-8 max-w-2xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-8">What Noetica is about</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-8">Why join</h2>
           <div className="space-y-6 mb-14">
             {POINTS.map(({ icon: Icon, title, body }) => (
               <div key={title} className="flex gap-4">
@@ -332,17 +337,16 @@ export function NoeticaBeta() {
             ))}
           </div>
 
-          <h2 className="text-xl font-bold text-white mb-3">Where things stand today</h2>
+          <h2 className="text-xl font-bold text-white mb-3">Available now for organisations</h2>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            Right now Noetica is used by larger organisations with strict rules about their data, and
-            the rest of this website is written for them. If you&apos;d like to see what it does
-            today, you&apos;re welcome to read about it.
+            Organisations already run Noetica as a managed deployment inside their own environment.
+            The free self-managed edition is next, and people on the waitlist get it first.
           </p>
           <Link
             href="/products/noetica"
             className="inline-flex items-center gap-2 text-primary font-semibold hover:text-white transition-colors"
           >
-            Read about Noetica today <ArrowRight className="w-4 h-4" />
+            See Noetica for organisations <ArrowRight className="w-4 h-4" />
           </Link>
 
           <p className="text-sm text-muted-foreground leading-relaxed mt-14 pt-8 border-t border-border/40">

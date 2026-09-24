@@ -103,18 +103,18 @@ async function sendWelcome(email: string, fullName: string | null): Promise<{ ok
   const body = [
     firstName ? `Hi ${firstName},` : "Hi,",
     "",
-    "Thanks for your interest in Noetica.",
+    "Thanks for joining the waitlist for the free, self-managed edition of Noetica.",
     "",
-    "Noetica today is built for larger organisations. We're working on a version for businesses your size, and you're now on the list to hear about it first. We don't have a date yet. We'll email you when there's something you can try.",
+    "Noetica runs today as managed deployments for organisations. The free edition is next: you'll run it every day on your own computer, with no AI bills, your IP staying on your machine, and every conversation building a governed, compounding knowledge brain for you or your business.",
     "",
-    "What Noetica is about: AI where the knowledge stays yours. It runs on your own device, nothing you type trains anyone else's model, and you can bring your existing ChatGPT or Claude history with you.",
+    "You're on the list to get it first. We don't have a release date yet; we'll email you as soon as it's ready to download.",
     "",
-    "Read more in the meantime: https://socioprophet.com/products/noetica",
+    "In the meantime, see what Noetica does for organisations: https://socioprophet.com/products/noetica",
     "",
     "The SocioProphet team",
     "socioprophet.com",
     "",
-    "You're receiving this because you joined the Noetica early-access list at socioprophet.com. To unsubscribe, reply with \"unsubscribe\" and we'll remove you.",
+    "You're receiving this because you joined the Noetica waitlist at socioprophet.com. To unsubscribe, reply with \"unsubscribe\" and we'll remove you.",
   ].join("\n");
 
   try {
@@ -125,7 +125,7 @@ async function sendWelcome(email: string, fullName: string | null): Promise<{ ok
         from,
         to: [email],
         reply_to: replyTo,
-        subject: "You're on the Noetica early-access list",
+        subject: "You're on the list for free Noetica",
         text: body,
       }),
       signal: AbortSignal.timeout(10_000),
