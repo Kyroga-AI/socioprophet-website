@@ -178,6 +178,17 @@ export function NoeticaBeta() {
           >
             Read about Noetica today <ArrowRight className="w-4 h-4" />
           </Link>
+
+          <p className="text-sm text-muted-foreground leading-relaxed mt-14 pt-8 border-t border-border/40">
+            Came from the MPOWER talk for the free resources? They&apos;re at{" "}
+            <a
+              href="https://kyroga.ai/mpower"
+              className="text-primary underline underline-offset-2 hover:text-white"
+            >
+              kyroga.ai/mpower
+            </a>
+            .
+          </p>
         </div>
       </section>
     </div>
