@@ -4,6 +4,8 @@
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
+      { "source": "/products/noetica/beta", "destination": "/products/noetica/beta.html" },
+      { "source": "/products/noetica/beta/", "destination": "/products/noetica/beta.html" },
       { "source": "**", "destination": "/index.html" }
     ]
   }
