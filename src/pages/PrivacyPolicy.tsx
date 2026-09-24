@@ -17,15 +17,15 @@ export function PrivacyPolicy() {
         <div className="container mx-auto max-w-4xl px-4 md:px-8">
           <div className="prose prose-invert prose-headings:text-white prose-headings:font-bold prose-p:text-muted-foreground prose-p:leading-relaxed prose-li:text-muted-foreground prose-li:leading-relaxed prose-strong:text-white max-w-none">
             <p className="font-mono text-xs uppercase tracking-wider text-primary !mb-10">
-              Last updated: 19 August 2026
+              Last updated: 24 September 2026
             </p>
 
             <h2>What this policy covers</h2>
             <p>
               This policy explains how SocioProphet handles information submitted through the
-              briefing request form and other direct enquiries on this website. It is intended to
-              help enterprise visitors understand what happens to their contact information before
-              they decide to share it.
+              briefing request form, early-access waitlists, and other direct enquiries on this
+              website. It is intended to help visitors understand what happens to their contact
+              information before they decide to share it.
             </p>
 
             <h2>Information you choose to provide</h2>
@@ -34,6 +34,18 @@ export function PrivacyPolicy() {
               organisation, role or title, area of interest, and any additional context you include
               in your message. We may also keep information from subsequent correspondence so that
               we can respond consistently.
+            </p>
+            <p>
+              If you join an early-access waitlist, the only thing we ask for is your email address.
+              We use it only to send you updates about that early access, and you can unsubscribe at
+              any time by replying to any of those emails.
+            </p>
+            <p>
+              When you submit either form, we also automatically record the page it was sent from, the
+              referring page, your browser&apos;s user-agent string, and a one-way coded version of
+              your IP address (not the address itself). We use these to see where an enquiry came
+              from and to protect the forms from automated spam and abuse, such as limiting repeated
+              submissions.
             </p>
             <p>
               Please do not include passwords, confidential customer information, production
