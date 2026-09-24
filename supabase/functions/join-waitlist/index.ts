@@ -24,6 +24,11 @@ const INDUSTRIES = new Set([
   "transport-logistics",
   "technology",
   "education-training",
+  "banking-finance",
+  "insurance",
+  "manufacturing",
+  "real-estate",
+  "government",
   "other",
 ]);
 

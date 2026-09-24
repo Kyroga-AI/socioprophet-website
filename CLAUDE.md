@@ -66,7 +66,7 @@ This replaced the earlier plan to route the form to the `leadCapture` Cloud Func
 
 `/products/noetica/beta` posts to a separate `join-waitlist` Edge Function (`supabase/functions/join-waitlist/`) that stores sign-ups in the `waitlist` table — deliberately not the contact form or `leads` table: different intent, different follow-up.
 
-- Required: email (any address is accepted — gmail etc. are the audience), company size (`1-5`, `6-25`, `26-100`, `101-500`, `500+`) and industry (ten codes plus `other`, which requires `industry_other`). Optional: name, company name, how they heard about us, reason for wanting Noetica. The option lists live in both `src/lib/waitlist-api.ts` and the function — change both together.
+- Required: email (any address is accepted — gmail etc. are the audience), company size (`1-5`, `6-25`, `26-100`, `101-500`, `500+`) and industry (fifteen codes plus `other`, which requires `industry_other`). Optional: name, company name, how they heard about us, reason for wanting Noetica. The option lists live in both `src/lib/waitlist-api.ts` and the function — change both together.
 - Each row is tagged with `source` — `mpower-2026` by default, or `?source=...` on the URL for other campaigns.
 - Duplicate email + source succeeds silently, so the page retries safely on flaky connections.
 - Bot protection is tuned for an event crowd on one Wi-Fi network: honeypot `sp_field_7`, 1 s minimum, 150 sign-ups per IP per hour.
