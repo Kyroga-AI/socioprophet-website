@@ -108,8 +108,8 @@ export function NoeticaBeta() {
             <Sparkles className="w-4 h-4" />
             <span>Free self-managed edition · Coming soon</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-5 leading-[1.1]">
-            Stop renting AI. Start building a brain you own.
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-5 leading-[1.1] text-balance">
+            Stop renting AI. Start building a brain you own &amp; don&apos;t give it away.
           </h1>
           <p className="text-lg text-muted-foreground leading-relaxed mb-8">
             Noetica runs today as managed deployments for organisations. Soon we&apos;re releasing a

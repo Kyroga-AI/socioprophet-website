@@ -9,7 +9,7 @@ const ROUTES = [
     path: "/products/noetica/beta",
     file: "dist/products/noetica/beta.html",
     title: "Noetica free edition waitlist | SocioProphet",
-    description: "Stop renting AI. Start building a brain you own. Free, self-managed Noetica runs on your own computer: no AI bills, and your IP stays on your machine.",
+    description: "Stop renting AI. Start building a brain you own & don't give it away. Free, self-managed Noetica runs on your own computer: no AI bills, and your IP stays on your machine.",
     image: "/og-noetica-free-edition.png",
   },
 ];
