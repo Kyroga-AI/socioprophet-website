@@ -262,6 +262,28 @@ export function NoeticaBeta() {
         </div>
       </section>
 
+      <section className="py-16 md:py-20 border-b border-border/40">
+        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">See what it looks like</h2>
+          <p className="text-muted-foreground leading-relaxed mb-8 max-w-2xl">
+            Every answer shows where it ran, which of your documents it used, and how well those
+            sources back it up. When they don&apos;t, Noetica says so, like the warning in this example.
+          </p>
+          <a href="/noetica-screenshot.jpg" target="_blank" rel="noopener" className="block">
+            <img
+              src="/noetica-screenshot.jpg"
+              width={1600}
+              height={1003}
+              loading="lazy"
+              decoding="async"
+              alt="Noetica answering a question about AI adoption in Australian small businesses, with its progress, sources and verification details shown beside the answer."
+              className="w-full h-auto border border-border"
+            />
+          </a>
+          <p className="text-xs text-muted-foreground mt-3">Tap the image to view it full size.</p>
+        </div>
+      </section>
+
       <section className="py-16 md:py-20">
         <div className="container mx-auto px-4 md:px-8 max-w-2xl">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-8">What Noetica is about</h2>
