@@ -10,16 +10,21 @@ export const COMPANY_SIZES = [
 ] as const;
 
 export const INDUSTRIES = [
-  { value: "construction-trades", label: "Construction & trades" },
+  { value: "banking-finance", label: "Banking & financial services" },
   { value: "cleaning-facilities", label: "Cleaning & facility services" },
-  { value: "retail", label: "Retail" },
-  { value: "wholesale-distribution", label: "Wholesale & distribution" },
-  { value: "hospitality-food", label: "Hospitality & food" },
-  { value: "professional-services", label: "Professional services (accounting, legal, consulting)" },
-  { value: "health-care", label: "Health & care" },
-  { value: "transport-logistics", label: "Transport & logistics" },
-  { value: "technology", label: "Technology & IT" },
+  { value: "construction-trades", label: "Construction & trades" },
   { value: "education-training", label: "Education & training" },
+  { value: "government", label: "Government & public sector" },
+  { value: "health-care", label: "Health & care" },
+  { value: "hospitality-food", label: "Hospitality & food" },
+  { value: "insurance", label: "Insurance" },
+  { value: "manufacturing", label: "Manufacturing" },
+  { value: "professional-services", label: "Professional services (accounting, legal, consulting)" },
+  { value: "real-estate", label: "Real estate & property" },
+  { value: "retail", label: "Retail" },
+  { value: "technology", label: "Technology & IT" },
+  { value: "transport-logistics", label: "Transport & logistics" },
+  { value: "wholesale-distribution", label: "Wholesale & distribution" },
   { value: "other", label: "Other" },
 ] as const;
 
