@@ -9,6 +9,7 @@ import { Home } from "@/pages/Home";
 import { Platform } from "@/pages/Platform";
 import { Products } from "@/pages/Products";
 import { ProductDetail } from "@/pages/products/ProductDetail";
+import { NoeticaBeta } from "@/pages/products/NoeticaBeta";
 import { Solutions } from "@/pages/Solutions";
 import { Sr262 } from "@/pages/solutions/Sr262";
 import { ApraCps230 } from "@/pages/solutions/ApraCps230";
@@ -34,6 +35,7 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/platform" component={Platform} />
           <Route path="/products" component={Products} />
+          <Route path="/products/noetica/beta" component={NoeticaBeta} />
           <Route path="/products/:slug" component={ProductDetail} />
           <Route path="/solutions" component={Solutions} />
           <Route path="/solutions/sr26-2" component={Sr262} />

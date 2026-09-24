@@ -38,6 +38,8 @@ There is currently no lint script, no test script, and no test framework install
 
 Defined in `src/App.tsx`. Top-level: `/`, `/platform`, `/products`, `/products/:slug`, `/solutions`, `/solutions/:slug`, `/compare`, `/evidence`, `/education`, `/company` (alias `/about`), `/contact`, `/privacy`. Solutions has four hard-routed regulatory pages ahead of the generic `:slug` fallback: `/solutions/sr26-2`, `/solutions/apra-cps-230`, `/solutions/eu-ai-act`, `/solutions/fca-mas`.
 
+`/products/noetica/beta` is a link-only landing page (not in the nav) for the Noetica small-business waitlist — the QR target from Gus's MPOWER Cumbre 2026 talk. It's written for owner-operators, not the enterprise buyer the rest of the site targets; keep it English, plain, and one field. It has its own static `<head>` for link previews (see Deploy).
+
 ## Environment variables
 
 Single optional variable: `VITE_LEAD_ENDPOINT` — overrides where the contact form POSTs lead JSON (see `.env.example` and `src/lib/lead-api.ts`). Unset, it defaults to the `submit-lead` Supabase Edge Function (below). Never commit a real `.env` — it's gitignored, keep it that way.
@@ -60,9 +62,21 @@ Bot protection, all in the function (no third-party service):
 
 This replaced the earlier plan to route the form to the `leadCapture` Cloud Function in `Kyroga-AI/socioprophet`, which was blocked on GCP IAM access.
 
+## Noetica waitlist
+
+`/products/noetica/beta` posts to a separate `join-waitlist` Edge Function (`supabase/functions/join-waitlist/`) that stores sign-ups in the `waitlist` table — deliberately not the contact form or `leads` table: different intent, different follow-up.
+
+- Email only. Any address is accepted (gmail etc. are the audience). Each row is tagged with `source` — `mpower-2026` by default, or `?source=...` on the URL for other campaigns.
+- Duplicate email + source succeeds silently, so the page retries safely on flaky connections.
+- Bot protection is tuned for an event crowd on one Wi-Fi network: honeypot `sp_field_7`, 1 s minimum, 150 sign-ups per IP per hour.
+- A welcome email goes to each new sign-up via Resend (`WAITLIST_FROM`, default `SocioProphet <hello@socioprophet.ai>`; `WAITLIST_REPLY_TO`, default `marketing@socioprophet.ai`; `WAITLIST_WELCOME_DAILY_CAP`, default 150). These fail until `socioprophet.ai` is verified in Resend — the sign-up is still stored, with `welcome_error` recorded. No per-sign-up team notification; view the list in Table Editor → `waitlist`.
+- Unsubscribes arrive as replies to marketing@. Set `unsubscribed_at` on the row and exclude those rows from any future send.
+
 ## Deploy
 
-Hosting: **Firebase Hosting (Google Cloud)**, project `socioprophet-web`, site `socioprophet-marketing` (custom domains `socioprophet.com` and `www.socioprophet.com` are bound to this site). `firebase.json` (public dir `dist`, SPA rewrite to `index.html`) and `.firebaserc` are committed — `pnpm build && firebase deploy --only hosting` from a clean clone is the deploy path.
+Hosting: **Firebase Hosting (Google Cloud)**, project `socioprophet-web`, site `socioprophet-marketing` (custom domains `socioprophet.com` and `www.socioprophet.com` are bound to this site). `firebase.json` (public dir `dist`, SPA rewrite to `index.html`, plus rewrites for pages with their own static `<head>`) and `.firebaserc` are committed — `pnpm build && firebase deploy --only hosting` from a clean clone is the deploy path.
+
+**Link previews:** chat apps and social sites don't run JavaScript, so `scripts/write-route-meta.mjs` (run by `pnpm build`) writes a copy of `index.html` with route-specific title, description and share image for each route in its list (currently `/products/noetica/beta` → `dist/products/noetica/beta.html`, image `public/og-noetica-beta.png`). Each needs a matching rewrite in `firebase.json` ahead of the `**` catch-all — a rewrite, not a directory index, so the URL serves with no redirect.
 
 **Sole owner of the hosting site:** this repo is the only deploy source for the `socioprophet-marketing` site. The `Kyroga-AI/socioprophet` monorepo used to deploy its `marketing/` directory to the same site, and whichever repo deployed last silently overwrote the other. That hosting target was removed in Kyroga-AI/socioprophet#2 (merged 2026-09-24) and `marketing/` is archived there. If a hosting target pointing at `socioprophet-marketing` ever reappears in that repo's `firebase.json`/`.firebaserc`, flag it to Gus before deploying from either repo.
 
