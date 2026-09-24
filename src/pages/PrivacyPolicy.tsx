@@ -23,9 +23,9 @@ export function PrivacyPolicy() {
             <h2>What this policy covers</h2>
             <p>
               This policy explains how SocioProphet handles information submitted through the
-              briefing request form and other direct enquiries on this website. It is intended to
-              help enterprise visitors understand what happens to their contact information before
-              they decide to share it.
+              briefing request form, early-access waitlists, and other direct enquiries on this
+              website. It is intended to help visitors understand what happens to their contact
+              information before they decide to share it.
             </p>
 
             <h2>Information you choose to provide</h2>
@@ -36,10 +36,15 @@ export function PrivacyPolicy() {
               we can respond consistently.
             </p>
             <p>
-              When you submit the form, we also automatically record the page it was sent from, the
+              If you join an early-access waitlist, the only thing we ask for is your email address.
+              We use it only to send you updates about that early access, and you can unsubscribe at
+              any time by replying to any of those emails.
+            </p>
+            <p>
+              When you submit either form, we also automatically record the page it was sent from, the
               referring page, your browser&apos;s user-agent string, and a one-way coded version of
               your IP address (not the address itself). We use these to see where an enquiry came
-              from and to protect the form from automated spam and abuse, such as limiting repeated
+              from and to protect the forms from automated spam and abuse, such as limiting repeated
               submissions.
             </p>
             <p>
