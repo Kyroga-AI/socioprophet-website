@@ -34,6 +34,27 @@ const POINTS = [
   },
 ];
 
+const SCREENSHOTS = [
+  {
+    src: "/noetica-canvas.jpg",
+    width: 1600,
+    height: 1004,
+    title: "Write with it",
+    caption:
+      "Draft documents in a canvas next to the chat. Each answer records which model wrote it (here, Claude) and which sources it used, and flags claims those sources don't support.",
+    alt: "Noetica drafting a document about AI adoption in Australian small businesses in a canvas beside the chat, with the model, sources and verification details shown alongside.",
+  },
+  {
+    src: "/noetica-knowledge-graph.jpg",
+    width: 1600,
+    height: 980,
+    title: "Your knowledge graph",
+    caption:
+      "As you work, Noetica maps the people, companies and topics in your documents, and keeps that map on your device.",
+    alt: "Noetica's knowledge graph view: a network of connected topics, companies and documents, labelled on-device.",
+  },
+];
+
 function sourceFromUrl(): string {
   const source = new URLSearchParams(window.location.search).get("source")?.trim().toLowerCase();
   return source && /^[a-z0-9-]{1,40}$/.test(source) ? source : DEFAULT_SOURCE;
@@ -265,22 +286,32 @@ export function NoeticaBeta() {
       <section className="py-16 md:py-20 border-b border-border/40">
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">See what it looks like</h2>
-          <p className="text-muted-foreground leading-relaxed mb-8 max-w-2xl">
-            Every answer shows where it ran, which of your documents it used, and how well those
-            sources back it up. When they don&apos;t, Noetica says so, like the warning in this example.
+          <p className="text-muted-foreground leading-relaxed mb-10 max-w-2xl">
+            Every answer shows which model produced it, which of your documents it used, and how well
+            those sources back it up. When they don&apos;t, Noetica says so.
           </p>
-          <a href="/noetica-screenshot.jpg" target="_blank" rel="noopener" className="block">
-            <img
-              src="/noetica-screenshot.jpg"
-              width={1600}
-              height={1003}
-              loading="lazy"
-              decoding="async"
-              alt="Noetica answering a question about AI adoption in Australian small businesses, with its progress, sources and verification details shown beside the answer."
-              className="w-full h-auto border border-border"
-            />
-          </a>
-          <p className="text-xs text-muted-foreground mt-3">Tap the image to view it full size.</p>
+          <div className="space-y-12">
+            {SCREENSHOTS.map((shot) => (
+              <figure key={shot.src}>
+                <a href={shot.src} target="_blank" rel="noopener" className="block">
+                  <img
+                    src={shot.src}
+                    width={shot.width}
+                    height={shot.height}
+                    loading="lazy"
+                    decoding="async"
+                    alt={shot.alt}
+                    className="w-full h-auto border border-border"
+                  />
+                </a>
+                <figcaption className="mt-4 max-w-2xl">
+                  <span className="block font-bold text-white mb-1">{shot.title}</span>
+                  <span className="text-sm text-muted-foreground leading-relaxed">{shot.caption}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-6">Tap an image to view it full size.</p>
         </div>
       </section>
 
