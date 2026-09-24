@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { joinWaitlist, type JoinWaitlistRequest } from "@/lib/waitlist-api";
 
 const DEFAULT_SOURCE = "mpower-2026";
+const MIN_FILL_MS = 1_200;
 
 const POINTS = [
   {
@@ -51,6 +52,9 @@ export function NoeticaBeta() {
     setFailed(false);
     setIsPending(true);
     try {
+      // The server rejects sub-second submits as bots; a person using autofill can be that fast, so wait it out.
+      const remaining = MIN_FILL_MS - (Date.now() - formShownAt.current);
+      if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
       await joinWaitlist({ ...data, source: sourceFromUrl() }, Date.now() - formShownAt.current);
       setJoined(true);
     } catch {
