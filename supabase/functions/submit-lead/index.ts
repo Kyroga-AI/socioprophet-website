@@ -9,7 +9,12 @@ const ALLOWED_ORIGINS = new Set([
 const PREVIEW_ORIGIN = /^https:\/\/socioprophet-marketing--[a-z0-9-]+\.web\.app$/;
 const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
-const PRODUCT_INTERESTS = new Set(["noetica", "prophet-platform", "scope-d", "general"]);
+const PRODUCT_LABELS: Record<string, string> = {
+  noetica: "Noetica",
+  "prophet-platform": "Prophet Platform",
+  "scope-d": "SCOPE-D",
+  general: "General Enquiry",
+};
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const REQUIRED = ["first_name", "last_name", "email", "organisation", "role", "product_interest"] as const;
 
@@ -91,13 +96,13 @@ async function sendNotification(lead: Lead): Promise<{ ok: boolean; error?: stri
     `Email: ${lead.email}`,
     `Organisation: ${lead.organisation}`,
     `Role: ${lead.role}`,
-    `Area of interest: ${lead.product_interest}`,
+    `Area of interest: ${PRODUCT_LABELS[lead.product_interest] ?? lead.product_interest}`,
     "",
     "Message:",
     lead.message || "(none)",
     "",
     `Page: ${lead.page ?? ""}`,
-    `Referrer: ${lead.referrer ?? ""}`,
+    `Came from: ${lead.referrer ?? "direct visit or unknown"}`,
     "",
     "Reply to this email to respond to the lead directly.",
   ].join("\n");
@@ -152,7 +157,8 @@ Deno.serve(async (req) => {
     product_interest: text(body.product_interest, 32),
     message: text(body.message, 4000) || null,
     page: text(body.page, 256) || null,
-    referrer: text(req.headers.get("referer"), 2048) || null,
+    // Sent by the page (document.referrer); the request's own Referer header is only ever our site.
+    referrer: text(body.referrer, 2048) || null,
     user_agent: text(req.headers.get("user-agent"), 512) || null,
     ip_hash: null,
   };
@@ -160,7 +166,7 @@ Deno.serve(async (req) => {
   const missing = REQUIRED.filter((key) => !lead[key]);
   if (missing.length) return json(400, { ok: false, error: "missing-required-fields", fields: missing });
   if (!EMAIL_RE.test(lead.email)) return json(400, { ok: false, error: "invalid-email" });
-  if (!PRODUCT_INTERESTS.has(lead.product_interest)) {
+  if (!Object.hasOwn(PRODUCT_LABELS, lead.product_interest)) {
     return json(400, { ok: false, error: "invalid-product-interest" });
   }
 
