@@ -38,7 +38,7 @@ There is currently no lint script, no test script, and no test framework install
 
 Defined in `src/App.tsx`. Top-level: `/`, `/platform`, `/products`, `/products/:slug`, `/solutions`, `/solutions/:slug`, `/compare`, `/evidence`, `/education`, `/company` (alias `/about`), `/contact`, `/privacy`. Solutions has four hard-routed regulatory pages ahead of the generic `:slug` fallback: `/solutions/sr26-2`, `/solutions/apra-cps-230`, `/solutions/eu-ai-act`, `/solutions/fca-mas`.
 
-`/products/noetica/beta` is a link-only landing page (not in the nav) for the Noetica small-business waitlist — the QR target from Gus's MPOWER Cumbre 2026 talk. It's written for owner-operators, not the enterprise buyer the rest of the site targets; keep it English, plain, and one field. It has its own static `<head>` for link previews (see Deploy).
+`/products/noetica/beta` is a link-only landing page (not in the nav) for the Noetica small-business waitlist — the QR target from Gus's MPOWER Cumbre 2026 talk. It's written for owner-operators, not the enterprise buyer the rest of the site targets; keep it English, plain, and short. It has its own static `<head>` for link previews (see Deploy).
 
 ## Environment variables
 
@@ -66,7 +66,8 @@ This replaced the earlier plan to route the form to the `leadCapture` Cloud Func
 
 `/products/noetica/beta` posts to a separate `join-waitlist` Edge Function (`supabase/functions/join-waitlist/`) that stores sign-ups in the `waitlist` table — deliberately not the contact form or `leads` table: different intent, different follow-up.
 
-- Email only. Any address is accepted (gmail etc. are the audience). Each row is tagged with `source` — `mpower-2026` by default, or `?source=...` on the URL for other campaigns.
+- Required: email (any address is accepted — gmail etc. are the audience), company size (`1-5`, `6-25`, `26-100`, `101-500`, `500+`) and industry (ten codes plus `other`, which requires `industry_other`). Optional: name, company name, how they heard about us, reason for wanting Noetica. The option lists live in both `src/lib/waitlist-api.ts` and the function — change both together.
+- Each row is tagged with `source` — `mpower-2026` by default, or `?source=...` on the URL for other campaigns.
 - Duplicate email + source succeeds silently, so the page retries safely on flaky connections.
 - Bot protection is tuned for an event crowd on one Wi-Fi network: honeypot `sp_field_7`, 1 s minimum, 150 sign-ups per IP per hour.
 - A welcome email goes to each new sign-up via Resend (`WAITLIST_FROM`, default `SocioProphet <hello@socioprophet.ai>`; `WAITLIST_REPLY_TO`, default `marketing@socioprophet.ai`; `WAITLIST_WELCOME_DAILY_CAP`, default 150). These fail until `socioprophet.ai` is verified in Resend — the sign-up is still stored, with `welcome_error` recorded. No per-sign-up team notification; view the list in Table Editor → `waitlist`.

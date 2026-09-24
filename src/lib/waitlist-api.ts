@@ -1,16 +1,51 @@
 const WAITLIST_ENDPOINT = "https://hrraiacqhxztndranmtf.supabase.co/functions/v1/join-waitlist";
 const RETRY_DELAYS_MS = [1_000, 3_000];
 
+export const COMPANY_SIZES = [
+  { value: "1-5", label: "1–5 people" },
+  { value: "6-25", label: "6–25 people" },
+  { value: "26-100", label: "26–100 people" },
+  { value: "101-500", label: "101–500 people" },
+  { value: "500+", label: "More than 500 people" },
+] as const;
+
+export const INDUSTRIES = [
+  { value: "construction-trades", label: "Construction & trades" },
+  { value: "cleaning-facilities", label: "Cleaning & facility services" },
+  { value: "retail", label: "Retail" },
+  { value: "wholesale-distribution", label: "Wholesale & distribution" },
+  { value: "hospitality-food", label: "Hospitality & food" },
+  { value: "professional-services", label: "Professional services (accounting, legal, consulting)" },
+  { value: "health-care", label: "Health & care" },
+  { value: "transport-logistics", label: "Transport & logistics" },
+  { value: "technology", label: "Technology & IT" },
+  { value: "education-training", label: "Education & training" },
+  { value: "other", label: "Other" },
+] as const;
+
 export type JoinWaitlistRequest = {
   email: string;
-  source: string;
+  companySize: string;
+  industry: string;
+  industryOther?: string;
+  fullName?: string;
+  companyName?: string;
+  heardAbout?: string;
+  reason?: string;
   sp_field_7?: string;
 };
 
-export async function joinWaitlist(data: JoinWaitlistRequest, elapsedMs: number): Promise<void> {
+export async function joinWaitlist(data: JoinWaitlistRequest, source: string, elapsedMs: number): Promise<void> {
   const body = JSON.stringify({
     email: data.email,
-    source: data.source,
+    company_size: data.companySize,
+    industry: data.industry,
+    industry_other: data.industry === "other" ? data.industryOther ?? "" : "",
+    full_name: data.fullName ?? "",
+    company_name: data.companyName ?? "",
+    heard_about: data.heardAbout ?? "",
+    reason: data.reason ?? "",
+    source,
     sp_field_7: data.sp_field_7 ?? "",
     elapsed_ms: elapsedMs,
     page: window.location.href,

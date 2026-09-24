@@ -4,10 +4,17 @@ import { Link } from "wouter";
 import { ArrowRight, History, Laptop, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { joinWaitlist, type JoinWaitlistRequest } from "@/lib/waitlist-api";
+import { Textarea } from "@/components/ui/textarea";
+import { COMPANY_SIZES, INDUSTRIES, joinWaitlist, type JoinWaitlistRequest } from "@/lib/waitlist-api";
 
 const DEFAULT_SOURCE = "mpower-2026";
 const MIN_FILL_MS = 1_200;
+
+const labelClass = "block text-xs font-mono font-medium text-muted-foreground uppercase tracking-wider mb-2";
+const inputClass = "rounded-none bg-background border-border focus-visible:ring-primary h-12 w-full text-base";
+const selectClass =
+  "rounded-none bg-background border border-border text-white h-12 w-full px-3 text-base focus:outline-none focus:ring-1 focus:ring-primary";
+const errorClass = "text-xs text-red-400 mt-1";
 
 const POINTS = [
   {
@@ -38,7 +45,10 @@ export function NoeticaBeta() {
   const [failed, setFailed] = useState(false);
   const formShownAt = useRef(Date.now());
 
-  const { register, handleSubmit, formState: { errors } } = useForm<JoinWaitlistRequest>();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<JoinWaitlistRequest>({
+    defaultValues: { companySize: "", industry: "" },
+  });
+  const industry = watch("industry");
 
   useEffect(() => {
     const previous = document.title;
@@ -55,7 +65,7 @@ export function NoeticaBeta() {
       // The server rejects sub-second submits as bots; a person using autofill can be that fast, so wait it out.
       const remaining = MIN_FILL_MS - (Date.now() - formShownAt.current);
       if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
-      await joinWaitlist({ ...data, source: sourceFromUrl() }, Date.now() - formShownAt.current);
+      await joinWaitlist(data, sourceFromUrl(), Date.now() - formShownAt.current);
       setJoined(true);
     } catch {
       setFailed(true);
@@ -77,7 +87,8 @@ export function NoeticaBeta() {
           </h1>
           <p className="text-lg text-muted-foreground leading-relaxed mb-8">
             Noetica today is built for larger organisations. We&apos;re building a version for
-            businesses your size. Leave your email and we&apos;ll let you know when it&apos;s ready.
+            businesses your size. Tell us a little about yours and we&apos;ll let you know when
+            it&apos;s ready.
           </p>
 
           <div className="bg-card border border-border p-6 md:p-8 relative">
@@ -101,26 +112,128 @@ export function NoeticaBeta() {
                   className="absolute -left-[9999px] h-0 w-0 opacity-0"
                   {...register("sp_field_7")}
                 />
-                <label
-                  htmlFor="waitlist-email"
-                  className="block text-xs font-mono font-medium text-muted-foreground uppercase tracking-wider"
-                >
-                  Your email
-                </label>
-                <Input
-                  id="waitlist-email"
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  placeholder="name@example.com"
-                  className="rounded-none bg-background border-border focus-visible:ring-primary h-12 w-full text-base"
-                  aria-invalid={!!errors.email}
-                  {...register("email", {
-                    required: "Please enter your email address.",
-                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Please enter a valid email address." },
-                  })}
-                />
-                {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}
+                <div>
+                  <label htmlFor="waitlist-email" className={labelClass}>
+                    Your email
+                  </label>
+                  <Input
+                    id="waitlist-email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    placeholder="name@example.com"
+                    className={inputClass}
+                    aria-invalid={!!errors.email}
+                    {...register("email", {
+                      required: "Please enter your email address.",
+                      pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Please enter a valid email address." },
+                    })}
+                  />
+                  {errors.email && <p className={errorClass}>{errors.email.message}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="waitlist-company-size" className={labelClass}>
+                    Company size
+                  </label>
+                  <select
+                    id="waitlist-company-size"
+                    className={selectClass}
+                    aria-invalid={!!errors.companySize}
+                    {...register("companySize", { required: "Please choose your company size." })}
+                  >
+                    <option value="" disabled>
+                      Select…
+                    </option>
+                    {COMPANY_SIZES.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.companySize && <p className={errorClass}>{errors.companySize.message}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="waitlist-industry" className={labelClass}>
+                    Industry
+                  </label>
+                  <select
+                    id="waitlist-industry"
+                    className={selectClass}
+                    aria-invalid={!!errors.industry}
+                    {...register("industry", { required: "Please choose your industry." })}
+                  >
+                    <option value="" disabled>
+                      Select…
+                    </option>
+                    {INDUSTRIES.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.industry && <p className={errorClass}>{errors.industry.message}</p>}
+                </div>
+
+                {industry === "other" && (
+                  <div>
+                    <label htmlFor="waitlist-industry-other" className={labelClass}>
+                      Your industry
+                    </label>
+                    <Input
+                      id="waitlist-industry-other"
+                      className={inputClass}
+                      aria-invalid={!!errors.industryOther}
+                      {...register("industryOther", {
+                        required: "Please tell us your industry.",
+                        shouldUnregister: true,
+                      })}
+                    />
+                    {errors.industryOther && <p className={errorClass}>{errors.industryOther.message}</p>}
+                  </div>
+                )}
+
+                <p className="pt-4 border-t border-border/40 text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                  Optional
+                </p>
+
+                <div>
+                  <label htmlFor="waitlist-name" className={labelClass}>
+                    Your name
+                  </label>
+                  <Input id="waitlist-name" autoComplete="name" className={inputClass} {...register("fullName")} />
+                </div>
+
+                <div>
+                  <label htmlFor="waitlist-company" className={labelClass}>
+                    Company name
+                  </label>
+                  <Input
+                    id="waitlist-company"
+                    autoComplete="organization"
+                    className={inputClass}
+                    {...register("companyName")}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="waitlist-heard" className={labelClass}>
+                    How did you hear about us?
+                  </label>
+                  <Input id="waitlist-heard" className={inputClass} {...register("heardAbout")} />
+                </div>
+
+                <div>
+                  <label htmlFor="waitlist-reason" className={labelClass}>
+                    Why do you want Noetica?
+                  </label>
+                  <Textarea
+                    id="waitlist-reason"
+                    className="rounded-none bg-background border-border focus-visible:ring-primary min-h-[100px] resize-none w-full text-base"
+                    {...register("reason")}
+                  />
+                </div>
 
                 {failed && (
                   <p role="alert" className="text-sm text-red-400">

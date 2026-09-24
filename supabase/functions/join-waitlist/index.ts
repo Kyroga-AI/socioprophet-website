@@ -12,6 +12,20 @@ const LOCAL_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SOURCE_RE = /^[a-z0-9-]{1,40}$/;
 const DEFAULT_SOURCE = "noetica-beta";
+const COMPANY_SIZES = new Set(["1-5", "6-25", "26-100", "101-500", "500+"]);
+const INDUSTRIES = new Set([
+  "construction-trades",
+  "cleaning-facilities",
+  "retail",
+  "wholesale-distribution",
+  "hospitality-food",
+  "professional-services",
+  "health-care",
+  "transport-logistics",
+  "technology",
+  "education-training",
+  "other",
+]);
 
 // One-field form with phone autofill can be submitted fast by a real person.
 const MIN_FILL_MS = 1_000;
@@ -22,6 +36,13 @@ const HOUR_MS = 60 * 60 * 1000;
 type Signup = {
   email: string;
   source: string;
+  company_size: string;
+  industry: string;
+  industry_other: string | null;
+  company_name: string | null;
+  full_name: string | null;
+  heard_about: string | null;
+  reason: string | null;
   page: string | null;
   referrer: string | null;
   user_agent: string | null;
@@ -67,14 +88,15 @@ function text(value: unknown, max: number): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
-async function sendWelcome(email: string): Promise<{ ok: boolean; error?: string }> {
+async function sendWelcome(email: string, fullName: string | null): Promise<{ ok: boolean; error?: string }> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
   if (!apiKey) return { ok: false, error: "RESEND_API_KEY is not set" };
 
   const from = Deno.env.get("WAITLIST_FROM") ?? "SocioProphet <hello@socioprophet.ai>";
   const replyTo = Deno.env.get("WAITLIST_REPLY_TO") ?? "marketing@socioprophet.ai";
+  const firstName = fullName?.split(/\s+/)[0];
   const body = [
-    "Hi,",
+    firstName ? `Hi ${firstName},` : "Hi,",
     "",
     "Thanks for your interest in Noetica.",
     "",
@@ -139,10 +161,24 @@ Deno.serve(async (req) => {
   const email = text(body.email, 320).toLowerCase();
   if (!EMAIL_RE.test(email)) return json(400, { ok: false, error: "invalid-email" });
 
+  const companySize = text(body.company_size, 20);
+  if (!COMPANY_SIZES.has(companySize)) return json(400, { ok: false, error: "invalid-company-size" });
+  const industry = text(body.industry, 40);
+  if (!INDUSTRIES.has(industry)) return json(400, { ok: false, error: "invalid-industry" });
+  const industryOther = industry === "other" ? text(body.industry_other, 100) : "";
+  if (industry === "other" && !industryOther) return json(400, { ok: false, error: "missing-industry-other" });
+
   const source = text(body.source, 40).toLowerCase();
   const signup: Signup = {
     email,
     source: SOURCE_RE.test(source) ? source : DEFAULT_SOURCE,
+    company_size: companySize,
+    industry,
+    industry_other: industryOther || null,
+    company_name: text(body.company_name, 200) || null,
+    full_name: text(body.full_name, 200) || null,
+    heard_about: text(body.heard_about, 300) || null,
+    reason: text(body.reason, 2000) || null,
     page: text(body.page, 256) || null,
     referrer: text(body.referrer, 2048) || null,
     user_agent: text(req.headers.get("user-agent"), 512) || null,
@@ -185,7 +221,7 @@ Deno.serve(async (req) => {
     .gte("created_at", new Date(Date.now() - 24 * HOUR_MS).toISOString());
   const welcome = (sentToday ?? 0) >= welcomeDailyCap()
     ? { ok: false, error: "daily welcome cap reached" }
-    : await sendWelcome(email);
+    : await sendWelcome(email, signup.full_name);
   if (!welcome.ok) console.error("waitlist welcome failed", welcome.error);
   await supabase.from("waitlist").update({ welcome_sent: welcome.ok, welcome_error: welcome.error ?? null }).eq("id", id);
 
