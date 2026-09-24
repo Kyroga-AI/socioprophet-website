@@ -36,9 +36,11 @@ export function PrivacyPolicy() {
               we can respond consistently.
             </p>
             <p>
-              If you join an early-access waitlist, the only thing we ask for is your email address.
-              We use it only to send you updates about that early access, and you can unsubscribe at
-              any time by replying to any of those emails.
+              If you join an early-access waitlist, we ask for your email address, company size and
+              industry, and you can choose to add your name, company name, how you heard about us and
+              why you are interested. We use this to send you updates about that early access and to
+              understand which kinds of businesses are interested. You can unsubscribe at any time by
+              replying to any of those emails.
             </p>
             <p>
               When you submit either form, we also automatically record the page it was sent from, the
